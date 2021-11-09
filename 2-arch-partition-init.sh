@@ -134,7 +134,7 @@ pacstrap /mnt base base-devel efibootmgr grub linux linux-firmware
 #### Init installed root
 
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /mnt/etc/locale.gen
-sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /mnt/etc/ssh/sshd_config
+# sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /mnt/etc/ssh/sshd_config
 sed -i "s/#Server/Server/g" /mnt/etc/pacman.d/mirrorlist
 # sed -i 's/#\(Storage=\)auto/\1volatile/' /mnt/etc/systemd/journald.conf
 sed -i 's/#\(HandleSuspendKey=\)suspend/\1ignore/' /mnt/etc/systemd/logind.conf
@@ -146,7 +146,7 @@ sed -i -E -e 's/(^HOOKS=\(.*) filesystems/\1 encrypt filesystems/' /mnt/etc/mkin
 echo LANG=en_US.UTF-8 > /mnt/etc/locale.genconf
 # export LANG='en_US.UTF-8'
 
-arch-chroot /mnt useradd -mU -s /bin/bash -G audio,autologin,games,input,lp,network,power,root,storage,sys,uucp,video,wheel "$user"
+arch-chroot /mnt useradd -mU -s /bin/bash -G audio,games,input,lp,network,power,root,storage,sys,uucp,video,wheel "$user"
 echo "$user:$password" | chpasswd --root /mnt
 echo "root:$password" | chpasswd --root /mnt
 arch-chroot /mnt  locale-gen
