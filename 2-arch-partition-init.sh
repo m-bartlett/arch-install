@@ -49,7 +49,6 @@ cryptfsname="${cryptfsname:-cryptroot}"
 
 clear
 cat <<EOF
-User input:
 hostname  = $hostname
 username  = $user
 device    = $device
@@ -57,7 +56,7 @@ luks name = $cryptfsname
 
 EOF
 
-read -p "Continue? [y/N]: " -n 1 input
+read -p "Continue? [y/N]: " input
 echo
 if [ "${input,,}" != "y" ]; then
   echo "Quitting..."
@@ -65,6 +64,7 @@ if [ "${input,,}" != "y" ]; then
 fi
 
 
+set -x
 
 #### Partitioning
 ## A separate, unencrypted boot partition is needed for disk encryption
@@ -120,15 +120,14 @@ mkdir -p /mnt/boot/efi
 mount "${part_boot}" /mnt/boot/efi
 
 # genfstab -U /mnt > /mnt/etc/fstab
-genfstab -t PARTUUID /mnt >> /mnt/etc/fstab
+mkdir /mnt/etc
+genfstab -t PARTUUID /mnt > /mnt/etc/fstab
 
 echo "${hostname}" > /mnt/etc/hostname
 printf "127.0.0.1\tlocalhost\t${hostname}\n::1\tlocalhost\t${hostname}" >> /etc/hosts
 
 pacstrap /mnt base base-devel efibootmgr grub linux linux-firmware
 
-echo "$user:$password" | chpasswd --root /mnt
-echo "root:$password" | chpasswd --root /mnt
 
 
 
@@ -148,6 +147,8 @@ echo LANG=en_US.UTF-8 > /mnt/etc/locale.genconf
 # export LANG='en_US.UTF-8'
 
 arch-chroot /mnt useradd -mU -s /bin/bash -G audio,autologin,games,input,lp,network,power,root,storage,sys,uucp,video,wheel "$user"
+echo "$user:$password" | chpasswd --root /mnt
+echo "root:$password" | chpasswd --root /mnt
 arch-chroot /mnt  locale-gen
 arch-chroot /mnt  ln -sf /usr/share/zoneinfo/US/Mountain /etc/localetime
 arch-chroot /mnt  hwclock --systohc --utc
