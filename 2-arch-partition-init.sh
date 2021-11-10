@@ -167,8 +167,8 @@ clear
 echo "Done!"
 echo
 
-read -p "Unmount now? [y/N]: " input ; echo
-if [ "${input,,}" != "y" ]; then
+read -p "Unmount now? [y/N]: " -n 1 input ; echo
+if [ "${input,,}" == "y" ]; then
   umount -R /mnt
   swapoff -a
   cryptsetup close /dev/mapper/${cryptfsname}
@@ -177,5 +177,5 @@ fi
 
 echo
 
-read -p "Reboot? [y/N]: " input ; echo
-[ "${input,,}" != "y" ] && reboot
+read -p "Reboot? [y/N]: " -n 1 input ; echo
+[ "${input,,}" == "y" ] && reboot
