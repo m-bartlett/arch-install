@@ -47,6 +47,6 @@ chpasswd <<<"root:$password"
 
 mkinitcpio -p linux
 grub-install --boot-directory=/boot --efi-directory=/boot/efi "${part_boot}"
-pacman -S intel-ucode # grub-mkconfig will automatically detect microcode updates and configure appropriately
+pacman -Syu intel-ucode # grub-mkconfig will automatically detect microcode updates and configure appropriately
 grub-mkconfig -o /boot/grub/grub.cfg
 grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg

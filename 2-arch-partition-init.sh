@@ -72,7 +72,7 @@ cat <<EOF
 hostname  = $hostname
 username  = $user
 device    = $device
-luks name = $cryptfsname
+LUKS name = $cryptfsname
 
 EOF
 
@@ -89,42 +89,40 @@ export hostname user password device cryptfsname
 set -x
 
 #### Partitioning
+
 ## A separate, unencrypted boot partition is needed for disk encryption
+## Make efi, boot, swap, and root
+## 1 100MB EFI partition # Hex code ef00
+## 2 250MB Boot partition # Hex code ef02
+## 3 <RAM size> swap partition
+## 4 100% size partiton # (to be encrypted) Hex code 8300
 
-swap_size=$(free --mebi | awk '/Mem:/ {print $2}')
-swap_end=$(( $swap_size + 129 + 1 ))MiB
+ram_size=$(free --mega | awk '/Mem:/ {print $2}')
 
-sgdisk -Z "${device}"
+sgdisk --zap-all "${device}"
+sgdisk --clear --mbrtogpt "${device}"
+sgdisk --set-alignment=2048 "${device}"
+sgdisk --new 1:2048:+100M      --typecode 1:ef00 --change-name 1:efi  "${device}"  # ef00 EFI
+sgdisk --new 2:0:+250M         --typecode 2:ef02 --change-name 2:boot "${device}"  # ef02 BIOS boot
+sgdisk --new 3:0:+${ram_size}M --typecode 3:8200 --change-name 3:swap "${device}"  # 8200 Linux swap
+sgdisk --new 4:0:0             --typecode 4:8300 --change-name 4:root "${device}"  # 8300 Linux filesystem
 
-# Make efi, boot, swap, and root
-parted \
-  --script "${device}" \
-  -- \
-    mklabel gpt \
-    mkpart ESP fat32 1Mib 129MiB \
-    set 1 boot on \
-    mkpart primary linux-swap 129MiB ${swap_end} \
-    mkpart primary ext4 ${swap_end} 100%
-
-# sgdisk --clear --mbrtogpt "${device}"
-# sgdisk --new 1:2048:+100M -t 1:8300 /dev/sda  # 8300 Linux filesystem
-# 1 100MB EFI partition # Hex code ef00
-# 2 250MB Boot partition # Hex code 8300
-# 3 <RAM size> swap partition
-# 4 100% size partiton # (to be encrypted) Hex code 8300
 
 
 ### Setup the disk and partitions ###
 
-export part_boot="$(ls ${device}* | grep -E "^${device}p?1$")"
-export part_swap="$(ls ${device}* | grep -E "^${device}p?2$")"
-export part_root="$(ls ${device}* | grep -E "^${device}p?3$")"
+export part_efi="$( ls ${device}* | grep -E "^${device}p?1$")"
+export part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
+export part_swap="$(ls ${device}* | grep -E "^${device}p?3$")"
+export part_root="$(ls ${device}* | grep -E "^${device}p?4$")"
 
+wipefs "${part_efi}"
 wipefs "${part_boot}"
 wipefs "${part_swap}"
 wipefs "${part_root}"
 
-mkfs.vfat -F32 -n "EFI" "${part_boot}"
+mkfs.vfat -F32 -n "EFI" "${part_efi}"
+mkfs.ext4 -L boot "${part_boot}"
 
 
 
@@ -140,16 +138,25 @@ mkfs.ext4 -L root /dev/mapper/${cryptfsname}
 
 #### Init boot and swap
 
+## Start swap
 mkswap "${part_swap}"
 swapon "${part_swap}"
 
+## Mount root
 mount /dev/mapper/${cryptfsname} /mnt
-mkdir -p /mnt/boot/efi
-mkdir /mnt/etc
-mount "${part_boot}" /mnt/boot/efi
+
+# Mount boot
+mkdir /mnt/boot
+mount "$part_boot" /mnt/boot
+
+# Mount efi
+mkdir /mnt/boot/efi
+mount "$part_efi" /mnt/boot/efi
+
 
 pacstrap /mnt base base-devel efibootmgr linux linux-firmware vi dhcpcd wpa_supplicant grub-efi-x86_64 git
 
+mkdir /mnt/etc
 genfstab -pU /mnt >> /mnt/etc/fstab
 echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t''0' >> /mnt/etc/fstab
 
