@@ -8,5 +8,5 @@ else
   read -p "$iwctl_ssid password: " iwctl_password
 fi
 rfkill unblock $(rfkill | cut -d' ' -f2 | tail +2 | paste -s -d' ' -)
-sleep 1 # Allow time for the network name to become "valid"
+sleep 3 # Allow time for the network name to become "valid"
 iwctl --passphrase "$iwctl_password" station wlan0 connect "$iwctl_ssid"

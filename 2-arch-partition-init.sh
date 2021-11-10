@@ -167,7 +167,6 @@ pacstrap /mnt \
                grub-efi-x86_64 \
                git             \
                openssh         \
-               wifi-menu       \
                dhcpcd          \
                netctl          \
                man-db          \
