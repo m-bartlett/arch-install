@@ -155,7 +155,7 @@ echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t
 
 cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/arch-init.sh
 arch-chroot /mnt /arch-init.sh
-
+rm /mnt/arch-init.sh
 
 clear
 umount -R /mnt
