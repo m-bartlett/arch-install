@@ -25,7 +25,7 @@ pac-install() {
 safe-append() {
   local file="$1" content="$2"
   if [ -f "$file" ]; then
-    if grep "$content" "$file" &>/dev/null ; then
+    if ! grep "$content" "$file" &>/dev/null ; then
       tee -a "$file" <<<"$content"
     else
       echo "safe-append: '$file' already contains '$content'" >&2
