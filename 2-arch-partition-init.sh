@@ -96,7 +96,7 @@ swap_end=$(( $swap_size + 129 + 1 ))MiB
 
 sgdisk -Z "${device}"
 
-# Make boot, swap, and root
+# Make efi, boot, swap, and root
 parted \
   --script "${device}" \
   -- \
@@ -106,6 +106,12 @@ parted \
     mkpart primary linux-swap 129MiB ${swap_end} \
     mkpart primary ext4 ${swap_end} 100%
 
+# sgdisk --clear --mbrtogpt "${device}"
+# sgdisk --new 1:2048:+100M -t 1:8300 /dev/sda  # 8300 Linux filesystem
+# 1 100MB EFI partition # Hex code ef00
+# 2 250MB Boot partition # Hex code 8300
+# 3 <RAM size> swap partition
+# 4 100% size partiton # (to be encrypted) Hex code 8300
 
 
 ### Setup the disk and partitions ###
@@ -142,13 +148,17 @@ mkdir -p /mnt/boot/efi
 mkdir /mnt/etc
 mount "${part_boot}" /mnt/boot/efi
 
-pacstrap /mnt base base-devel efibootmgr grub linux linux-firmware
+pacstrap /mnt base base-devel efibootmgr linux linux-firmware vi dhcpcd wpa_supplicant grub-efi-x86_64 git
 
 genfstab -pU /mnt >> /mnt/etc/fstab
+echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t''0' >> /mnt/etc/fstab
 
 cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/arch-init.sh
 arch-chroot /mnt /arch-init.sh
 
 
 clear
+umount -R /mnt
+swapoff -a
+cryptsetup close /dev/mapper/${cryptfsname}
 echo "Done!"

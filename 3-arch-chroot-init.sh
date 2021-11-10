@@ -25,9 +25,15 @@ safe-sed -i 's/#\(HandleHibernateKey=\)hibernate/\1ignore/' /etc/systemd/logind.
 safe-sed -i 's/#\(HandleLidSwitch=\)suspend/\1ignore/' /etc/systemd/logind.conf
 
 safe-sed -i 's@\(^GRUB_CMDLINE_LINUX=\)""@\1"cryptdevice=/dev/sda3:cryptroot:allow-discards"@' /etc/default/grub
-safe-sed -i 's/\(^HOOKS=(.*\) filesystems/\1 encrypt filesystems/' /etc/mkinitcpio.conf
+safe-sed -i 's/#\(GRUB_ENABLE_CRYPTODISK=y\)/\1/' /etc/default/grub
 
-echo LANG=en_US.UTF-8 > /etc/locale.genconf
+HOOKS="base udev autodetect keyboard modconf block encrypt filesystems resume fsck"
+safe-sed -i "s/^HOOKS=(.*)/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
+safe-sed -i "s/^MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
+
+echo LANG=en_US.UTF-8 >> /etc/locale.conf
+echo LANGUAGE=en_US >> /etc/locale.conf
+echo LC_ALL=C >> /etc/locale.conf
 export LANG='en_US.UTF-8'
 locale-gen
 
@@ -41,5 +47,6 @@ chpasswd <<<"root:$password"
 
 mkinitcpio -p linux
 grub-install --boot-directory=/boot --efi-directory=/boot/efi "${part_boot}"
+pacman -S intel-ucode # grub-mkconfig will automatically detect microcode updates and configure appropriately
 grub-mkconfig -o /boot/grub/grub.cfg
 grub-mkconfig -o /boot/efi/EFI/arch/grub.cfg
