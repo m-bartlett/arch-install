@@ -91,8 +91,8 @@ set -x
 
 ## A separate, unencrypted boot partition is needed for disk encryption
 ## Make efi, boot, swap, and root
-## 1 100MB EFI partition # Hex code ef00
-## 2 250MB Boot partition # Hex code ef02
+## 1 200MB Boot partition # Hex code ef02
+## 2 100MB EFI partition # Hex code ef00
 ## 3 <RAM size> swap partition
 ## 4 100% size partiton # (to be encrypted) Hex code 8300
 
@@ -101,8 +101,10 @@ ram_size=$(free --mega | awk '/Mem:/ {print $2}')
 sgdisk --zap-all "${device}"
 sgdisk --clear --mbrtogpt "${device}"
 sgdisk --set-alignment=2048 "${device}"
-sgdisk --new 1:2048:+100M      --typecode 1:ef00 --change-name 1:efi  "${device}"  # ef00 EFI
-sgdisk --new 2:0:+250M         --typecode 2:ef02 --change-name 2:boot "${device}"  # ef02 BIOS boot
+
+# ef00 is essential for GPT booting in UEFI
+sgdisk --new 1:2048:+200M      --typecode 1:ef02 --change-name 1:boot "${device}"  # ef02 BIOS boot
+sgdisk --new 2:0:+100M         --typecode 2:ef00 --change-name 2:EFI  "${device}"  # ef00 (Extensible Firmware Interface (EFI)) System Partition (ESP)
 sgdisk --new 3:0:+${ram_size}M --typecode 3:8200 --change-name 3:swap "${device}"  # 8200 Linux swap
 sgdisk --new 4:0:0             --typecode 4:8300 --change-name 4:root "${device}"  # 8300 Linux filesystem
 
@@ -110,8 +112,8 @@ sgdisk --new 4:0:0             --typecode 4:8300 --change-name 4:root "${device}
 
 ### Setup the disk and partitions ###
 
-export part_efi="$( ls ${device}* | grep -E "^${device}p?1$")"
-export part_boot="$(ls ${device}* | grep -E "^${device}p?2$")"
+export part_boot="$(ls ${device}* | grep -E "^${device}p?1$")"
+export  part_efi="$(ls ${device}* | grep -E "^${device}p?2$")"
 export part_swap="$(ls ${device}* | grep -E "^${device}p?3$")"
 export part_root="$(ls ${device}* | grep -E "^${device}p?4$")"
 
@@ -153,7 +155,25 @@ mkdir /mnt/boot/efi
 mount "$part_efi" /mnt/boot/efi
 
 
-pacstrap /mnt base base-devel efibootmgr linux linux-firmware vi dhcpcd wpa_supplicant grub-efi-x86_64 git
+pacstrap /mnt \
+               base            \
+               base-devel      \
+               efibootmgr      \
+               linux           \
+               linux-firmware  \
+               vi              \
+               dhcpcd          \
+               wpa_supplicant  \
+               grub-efi-x86_64 \
+               git             \
+               openssh         \
+               wifi-menu       \
+               dhcpcd          \
+               netctl          \
+               man-db          \
+               man-pages       \
+               texinfo         \
+
 
 mkdir -p /mnt/etc
 genfstab -pU /mnt >> /mnt/etc/fstab
