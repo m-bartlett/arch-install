@@ -29,11 +29,9 @@ safe-append() {
       tee -a "$file" <<<"$content"
     else
       echo "safe-append: '$file' already contains '$content'" >&2
-      return 1
     fi
   else
     echo "safe-append: '$file' does not exist" >&2
-    return 1
   fi
 }
 
@@ -75,7 +73,7 @@ systemctl enable ntpd
 systemctl start ntpd
 
 safe-append /etc/modprobe.d/i915.conf "options i915 i915_enable_rc6=7 i915_enable_fbc=1 lvds_downclock=1"
-pac-install xorg-server xorg-server-utils xorg-xinit mesa xf86-video-intel
+pac-install xorg-server xorg-xinit mesa xf86-video-intel
 mkdir -p /etc/X11/xorg.conf.d/
 cat << EOF > /etc/X11/xorg.conf.d/20-intel.conf
 Section "Device"
@@ -91,7 +89,7 @@ useradd -mU -s /bin/bash -G audio,games,input,lp,network,power,root,storage,sys,
 chpasswd <<<"$user:$password"
 chpasswd <<<"root:$password"
 safe-sed "s/^# \(%wheel ALL=(ALL) ALL\)/\1/" /etc/sudoers
-safe-append /etc/sudoers "$USER ALL=(ALL) NOPASSWD: ALL"
+safe-append /etc/sudoers "$user ALL=(ALL) NOPASSWD: ALL"
 
 
 mkinitcpio -p linux
