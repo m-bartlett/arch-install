@@ -76,8 +76,7 @@ LUKS name = $cryptfsname
 
 EOF
 
-read -p "Continue? [y/N]: " input
-echo
+read -p "Continue? [y/N]: " input ; echo
 if [ "${input,,}" != "y" ]; then
   echo "Quitting..."
   exit 1
@@ -156,7 +155,7 @@ mount "$part_efi" /mnt/boot/efi
 
 pacstrap /mnt base base-devel efibootmgr linux linux-firmware vi dhcpcd wpa_supplicant grub-efi-x86_64 git
 
-mkdir /mnt/etc
+mkdir -p /mnt/etc
 genfstab -pU /mnt >> /mnt/etc/fstab
 echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t''0' >> /mnt/etc/fstab
 
@@ -165,7 +164,18 @@ arch-chroot /mnt /arch-init.sh
 rm /mnt/arch-init.sh
 
 clear
-umount -R /mnt
-swapoff -a
-cryptsetup close /dev/mapper/${cryptfsname}
 echo "Done!"
+echo
+
+read -p "Unmount now? [y/N]: " input ; echo
+if [ "${input,,}" != "y" ]; then
+  umount -R /mnt
+  swapoff -a
+  cryptsetup close /dev/mapper/${cryptfsname}
+  echo "Unmounted."
+fi
+
+echo
+
+read -p "Reboot? [y/N]: " input ; echo
+[ "${input,,}" != "y" ] && reboot
