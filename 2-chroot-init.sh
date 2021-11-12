@@ -19,14 +19,21 @@ safe-sed() {  # sed instructions should be idempotent!
 
 safe-append() {
   local file="$1" content="$2"
+  local append=0
   if [ -f "$file" ]; then
     if ! grep "$content" "$file" &>/dev/null ; then
-      tee -a "$file" <<<"$content"
+      append=1
     else
       echo "safe-append: '$file' already contains '$content'" >&2
     fi
   else
-    echo "safe-append: '$file' does not exist" >&2
+    mkdir -p "$(dirname "$file")"
+    touch "$file"
+    append=1
+  fi
+  if ((append)); then
+    tee -a "$file" <<<"$content"
+    echo "Added '$content' to '$file'"
   fi
 }
 
@@ -87,6 +94,9 @@ pacman_packages=(
   dmenu
   dunst
   entr
+  epdfview
+  exiv2
+  ffmpeg
   gparted
   hexchat
   htop
@@ -120,20 +130,6 @@ reflector --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 
 pacman -S --noconfirm --needed ${pacman_packages[@]}
 
-git clone https://aur.archlinux.org/yay.git
-pushd yay
-makepkg -si --noconfirm
-popd
-rm -rf yay
-
-aur_packages=(
-  nerd-fonts-victor-mono
-  vim-clipboard
-  web-media-controller-mpris-git
-)
-
-yay -Sya --noconfirm ${aur_packages[@]}
-
 set -x
 
 echo "${hostname}" > /etc/hostname
@@ -154,7 +150,9 @@ safe-sed "s/^HOOKS=(.*)/HOOKS=($HOOKS)/" /etc/mkinitcpio.conf
 safe-sed "s/^MODULES=()/MODULES=(ext4)/" /etc/mkinitcpio.conf
 
 export LANG='en_US.UTF-8'
+touch /etc/vconsole.conf
 safe-append /etc/vconsole.conf 'KEYMAP=us'
+touch /etc/locale.conf
 safe-append /etc/locale.conf   'LANG=en_US.UTF-8'
 safe-append /etc/locale.conf   'LANGUAGE=en_US'
 safe-append /etc/locale.conf   'LC_ALL=C'
@@ -173,7 +171,7 @@ systemctl enable dhcpcd
 systemctl enable NetworkManager
 systemctl enable bluetooth
 systemctl enable tlp
-systemctl enable tlp-sleep
+# systemctl enable tlp-sleep
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
 systemctl enable lightdm
@@ -198,13 +196,13 @@ chpasswd <<<"root:$password"
 safe-sed "s/^# \(%wheel ALL=(ALL) ALL\)/\1/" /etc/sudoers
 safe-append /etc/sudoers "$user ALL=(ALL) NOPASSWD: ALL"
 
-GIT_SSH_COMMAND="ssh -i $BASH_SOURCE_DIR/id_rsa" git clone git@gitlab.com:mbartlet/dot.git /.,
+GIT_SSH_COMMAND="ssh -i /id_rsa -o 'StrictHostKeyChecking=no'" git clone git@gitlab.com:mbartlet/dot.git /.,
 chown -R "$user": /.,
 
-su --login --whitelist-environment "$user" /user-init.sh
+su --login "$user" /user-init.sh
 
 ## Custome grub theme
-cp -r "$BASH_SOURCE_DIR/grub" /boot/grub/themes/arch
+cp -r "/grub" /boot/grub/themes/arch
 safe-sed \
   "s,^\(GRUB_CMDLINE_LINUX=\".*\)\"$,\1 splash cryptdevice=${part_root}:${cryptfsname} resume=${part_swap}\"," \
   /etc/default/grub

@@ -10,9 +10,11 @@ source "$BASH_SOURCE_DIR/1-wifi-init.sh"
 
 read -p "Enter hostname: " hostname
 : ${hostname:?"hostname cannot be empty"}
+echo
 
 read -p "Enter primary user username: " user
 : ${user:?"user cannot be empty"}
+echo
 
 while : ; do
   read -p "Enter admin password: " password
@@ -30,6 +32,7 @@ while : ; do
     echo "Passwords did not match"
   fi
 done
+echo
 
 while : ; do
   read -p "Enter LUKS crypt passphrase: " cryptpassphrase
@@ -47,6 +50,7 @@ while : ; do
     echo "Crypt passphrase did not match"
   fi
 done
+echo
 
 while : ; do
   devicelist=$(lsblk -dplnx size -o name,size | grep -Ev "boot|rpmb|loop" | tac)
@@ -63,7 +67,7 @@ while : ; do
     echo
   fi
 done
-
+echo
 
 read -p "Enter name for encrypted filesystem [cryptroot]: " cryptfsname
 cryptfsname="${cryptfsname:-cryptroot}"
@@ -155,6 +159,9 @@ mkdir /mnt/boot/efi
 mount "$part_efi" /mnt/boot/efi
 
 
+
+#### User environment initialization
+
 pacstrap /mnt \
                base            \
                base-devel      \
@@ -176,9 +183,17 @@ echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t
 
 cp -v $BASH_SOURCE_DIR/2-*.sh /mnt/arch-init.sh
 cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/user-init.sh
+cp -v $BASH_SOURCE_DIR/id_rsa /mnt/
+cp -v $BASH_SOURCE_DIR/xinitrc /mnt/
+cp -rv $BASH_SOURCE_DIR/grub /mnt/
+chmod 400 /mnt/id_rsa
+
 arch-chroot /mnt /arch-init.sh
+
 rm /mnt/arch-init.sh
 rm /mnt/user-init.sh
+rm /mnt/id_rsa
+rm /mnt/xinitrc
 
 clear
 echo "Done!"

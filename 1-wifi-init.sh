@@ -4,7 +4,11 @@ set -e
 wifi_files="$(\ls -1 *.wifi)"
 
 if [ -n "$wifi_files" ]; then
-  select wifi_file in $wifi_files; do : ; break; done
+  if (( $(wc -l <<<"$wifi_files") > 1 )); then
+    select wifi_file in $wifi_files; do : ; break; done
+  else
+    wifi_file="$(<<<"$wifi_files" head -1)"
+  fi
   iwctl_ssid="${wifi_file%*.wifi}"
   iwctl_password="$(<"$wifi_file")"
 else
