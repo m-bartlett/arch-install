@@ -108,19 +108,23 @@ pacman_packages=(
   ttf-joypixels
   ttf-liberation
   ttf-roboto terminus-font
-  ttf-symbola
   ttf-ubuntu-font-family
   unzip
   w3m
   which
-  yay
 )
 
 pacman -Sy
-pacman -S reflector
+pacman -S --noconfirm reflector
 reflector --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 
 pacman -S --noconfirm --needed ${pacman_packages[@]}
+
+git clone https://aur.archlinux.org/yay.git
+pushd yay
+makepkg -si --noconfirm
+popd
+rm -rf yay
 
 aur_packages=(
   nerd-fonts-victor-mono
