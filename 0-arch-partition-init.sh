@@ -6,6 +6,8 @@ trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
 
 BASH_SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+source "$BASH_SOURCE_DIR/1-wifi-init.sh"
+
 read -p "Enter hostname: " hostname
 : ${hostname:?"hostname cannot be empty"}
 
@@ -82,10 +84,8 @@ if [ "${input,,}" != "y" ]; then
   exit 1
 fi
 
-export hostname user password device cryptfsname
+export hostname user password device cryptfsname BASH_SOURCE_DIR
 
-
-set -x
 
 #### Partitioning
 
@@ -161,13 +161,9 @@ pacstrap /mnt \
                efibootmgr      \
                linux           \
                linux-firmware  \
-               vi              \
-               dhcpcd          \
-               wpa_supplicant  \
                grub-efi-x86_64 \
                git             \
                openssh         \
-               dhcpcd          \
                netctl          \
                man-db          \
                man-pages       \
@@ -178,9 +174,11 @@ mkdir -p /mnt/etc
 genfstab -pU /mnt >> /mnt/etc/fstab
 echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t''0' >> /mnt/etc/fstab
 
-cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/arch-init.sh
+cp -v $BASH_SOURCE_DIR/2-*.sh /mnt/arch-init.sh
+cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/user-init.sh
 arch-chroot /mnt /arch-init.sh
 rm /mnt/arch-init.sh
+rm /mnt/user-init.sh
 
 clear
 echo "Done!"
