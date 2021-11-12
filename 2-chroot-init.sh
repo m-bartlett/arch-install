@@ -55,6 +55,7 @@ pacman_packages=(
   tlp
   tlp-rdw
   powertop
+  lshw
   acpi
 
   pulseaudio
@@ -101,9 +102,9 @@ pacman_packages=(
   hexchat
   htop
   jq
-  lshw
   mpv
   noto-fonts
+  pcmanfm
   picom
   playerctl
   python-i3ipc
@@ -117,7 +118,8 @@ pacman_packages=(
   ttf-droid
   ttf-joypixels
   ttf-liberation
-  ttf-roboto terminus-font
+  ttf-roboto
+  terminus-font
   ttf-ubuntu-font-family
   unzip
   w3m
@@ -196,12 +198,14 @@ chpasswd <<<"root:$password"
 safe-sed "s/^# \(%wheel ALL=(ALL) ALL\)/\1/" /etc/sudoers
 safe-append /etc/sudoers "$user ALL=(ALL) NOPASSWD: ALL"
 
-GIT_SSH_COMMAND="ssh -i /id_rsa -o 'StrictHostKeyChecking=no'" git clone git@gitlab.com:mbartlet/dot.git /.,
+export GIT_SSH_COMMAND="ssh -i /id_rsa -o 'StrictHostKeyChecking=no'"
+git clone git@gitlab.com:mbartlet/dot.git /.,
 chown -R "$user": /.,
 
 su --login "$user" /user-init.sh
 
 ## Custome grub theme
+mkdir -p /boot/grub/themes
 cp -r "/grub" /boot/grub/themes/arch
 safe-sed \
   "s,^\(GRUB_CMDLINE_LINUX=\".*\)\"$,\1 splash cryptdevice=${part_root}:${cryptfsname} resume=${part_swap}\"," \
