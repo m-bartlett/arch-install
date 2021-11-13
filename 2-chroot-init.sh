@@ -190,7 +190,11 @@ Section "Device"
 EndSection
 EOF
 
-safe-append /etc/lightdm/lightdm-gtk-greeter.conf '[greeter]'$'\n''theme-name = Arc-Dark'$'\n''icon-theme-name = Papirus-Dark'$'\n''background = #2f343f'
+
+safe-sed 's/#\(theme-name=\)/\1Arc-Dark/' /etc/lightdm/lightdm-gtk-greeter.conf
+safe-sed 's/#\(icon-theme-name=\)/\1Papirus-Dark/' /etc/lightdm/lightdm-gtk-greeter.conf
+safe-sed 's/#\(background=\)/\1/boot/grub/themes/arch/bg.png/' /etc/lightdm/lightdm-gtk-greeter.conf
+
 
 useradd -mU -s /bin/bash -G audio,games,input,lp,network,power,root,storage,sys,uucp,video,wheel "$user"
 chpasswd <<<"$user:$password"
@@ -200,7 +204,7 @@ safe-append /etc/sudoers "$user ALL=(ALL) NOPASSWD: ALL"
 
 export GIT_SSH_COMMAND="ssh -i /id_rsa -o 'StrictHostKeyChecking=no'"
 git clone git@gitlab.com:mbartlet/dot.git /.,
-chown -R "$user": /.,
+chown -R "$user": /., /usr/local/bin
 
 su --login "$user" /user-init.sh
 

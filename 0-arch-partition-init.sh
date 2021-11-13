@@ -194,6 +194,7 @@ rm /mnt/arch-init.sh
 rm /mnt/user-init.sh
 rm /mnt/id_rsa
 rm /mnt/xinitrc
+rm -rf /mnt/grub
 
 clear
 echo "Done!"

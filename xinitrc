@@ -9,8 +9,6 @@ usermodmap=$HOME/.Xmodmap
 sysresources=/etc/X11/xinit/.Xresources
 sysmodmap=/etc/X11/xinit/.Xmodmap
 
-DEFAULT_SESSION='i3 --shmlog-size 0'
-
 [ -f $sysresources ]    && xrdb -merge $sysresources
 [ -f "$userresources" ] && xrdb -merge "$userresources"
 [ -f $sysmodmap ]       && xmodmap $sysmodmap
@@ -27,4 +25,4 @@ fi
 
 xset b off
 
-exec dbus-launch i3 --shmlog-size 0 --sh-syntax --exit-with-session
+exec dbus-launch --sh-syntax --exit-with-session i3 --shmlog-size 0
