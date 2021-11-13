@@ -52,8 +52,6 @@ pacman_packages=(
   bluez-utils
   blueman
 
-  tlp
-  tlp-rdw
   powertop
   lshw
   acpi
@@ -174,8 +172,6 @@ systemctl enable sshd
 systemctl enable dhcpcd
 systemctl enable NetworkManager
 systemctl enable bluetooth
-systemctl enable tlp
-# systemctl enable tlp-sleep
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
 systemctl enable lightdm
