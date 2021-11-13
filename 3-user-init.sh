@@ -11,6 +11,7 @@ aur_packages=(
   nerd-fonts-victor-mono
   vim-clipboard
   web-media-controller-mpris-git
+  libxft-bgra
 )
 
 yay -Sya --noconfirm ${aur_packages[@]}

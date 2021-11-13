@@ -190,11 +190,9 @@ Section "Device"
 EndSection
 EOF
 
-
 safe-sed 's/#\(theme-name=\)/\1Arc-Dark/' /etc/lightdm/lightdm-gtk-greeter.conf
 safe-sed 's/#\(icon-theme-name=\)/\1Papirus-Dark/' /etc/lightdm/lightdm-gtk-greeter.conf
 safe-sed 's,#\(background=\),\1/boot/grub/themes/arch/bg.png,' /etc/lightdm/lightdm-gtk-greeter.conf
-
 
 useradd -mU -s /bin/bash -G audio,games,input,lp,network,power,root,storage,sys,uucp,video,wheel "$user"
 chpasswd <<<"$user:$password"
