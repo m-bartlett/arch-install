@@ -98,6 +98,7 @@ pacman_packages=(
   epdfview
   exiv2
   ffmpeg
+  fzf
   gparted
   hexchat
   htop
@@ -112,6 +113,7 @@ pacman_packages=(
   python-pip
   redshift
   rofi
+  scrot
   strace
   telegram-desktop
   ttf-dejavu ttf-freefont
