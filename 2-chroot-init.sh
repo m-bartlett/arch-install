@@ -105,7 +105,7 @@ pacman_packages=(
   mpv
   noto-fonts
   pcmanfm
-  picom
+  picom  # build from source for dual_kawase blur and rounded corners
   playerctl
   python-i3ipc
   python-numpy
@@ -115,7 +115,7 @@ pacman_packages=(
   scrot
   strace
   telegram-desktop
-  ttf-dejavu ttf-freefont
+  ttf-dejavu
   ttf-droid
   ttf-joypixels
   ttf-liberation
@@ -167,6 +167,8 @@ locale-gen
 ln -sf /usr/share/zoneinfo/US/Mountain /etc/localetime
 hwclock --systohc --utc
 timedatectl set-ntp true
+  # timedatectl list-timezones
+timedatectl set-timezone America/Denver
 safe-append /etc/resolv.conf 'nameserver 192.168.0.51'$'\n''nameserver 8.8.8.8'
 safe-append etc/wpa_supplicant/wpa_supplicant.conf 'ctrl_interface=/run/wpa_supplicant'$'\n''update_config=1'
 

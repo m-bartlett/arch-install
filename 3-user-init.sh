@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+user=$(whoami)
+
+chmod go-w /home/$user
+chmod 700 /home/$user/.ssh
+chmod 600 /home/$user/.ssh/authorized_keys
+chmod 400 /home/$user/.ssh/*id_rsa
+
 # git clone https://aur.archlinux.org/yay.git
 git clone https://aur.archlinux.org/yay-bin.git
 pushd yay-bin
