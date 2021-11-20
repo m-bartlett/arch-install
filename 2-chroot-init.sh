@@ -138,6 +138,8 @@ echo "${hostname}" > /etc/hostname
 safe-append /etc/hosts '127.0.0.1'$'\t''localhost.localdomain'$'\t''localhost'$'\t'"$hostname"
 safe-append /etc/hosts '::1'$'\t''localhost.localdomain'$'\t''localhost'$'\t'"$hostname"
 
+# mDNS for Avahi
+safe-sed 's/^hosts:.*/hosts: files mymachines mdns4_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] dns mdns4 myhostname/' /etc/nsswitch.conf
 
 # sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
 safe-sed 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
