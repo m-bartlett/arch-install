@@ -184,7 +184,7 @@ echo 'tmpfs'$'\t''/tmp'$'\t''tmpfs'$'\t''defaults,noatime,mode=1777'$'\t''0'$'\t
 cp -v $BASH_SOURCE_DIR/2-*.sh /mnt/arch-init.sh
 cp -v $BASH_SOURCE_DIR/3-*.sh /mnt/user-init.sh
 cp -v $BASH_SOURCE_DIR/id_rsa /mnt/
-cp -v $BASH_SOURCE_DIR/xinitrc /mnt/
+cp -v $BASH_SOURCE_DIR/xprofile /mnt/
 cp -rv $BASH_SOURCE_DIR/grub /mnt/
 chmod 400 /mnt/id_rsa
 
@@ -193,7 +193,7 @@ arch-chroot /mnt /arch-init.sh
 rm /mnt/arch-init.sh
 rm /mnt/user-init.sh
 rm /mnt/id_rsa
-rm /mnt/xinitrc
+rm /mnt/xprofile
 rm -rf /mnt/grub
 
 clear

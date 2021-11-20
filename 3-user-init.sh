@@ -37,4 +37,4 @@ xdg-user-dirs-update
 sudo pip3 install pyaes
 sudo pip3 install pytuya
 
-cp /xinitrc "$HOME/.xinitrc"
+cp /xprofile "$HOME/.xprofile"
