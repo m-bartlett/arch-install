@@ -135,7 +135,8 @@ pacman -S --noconfirm --needed ${pacman_packages[@]}
 set -x
 
 echo "${hostname}" > /etc/hostname
-safe-append /etc/hosts '127.0.0.1'$'\t''localhost'$'\t'"${hostname}"$'\n''::1'$'\t''localhost'$'\t'"${hostname}"
+safe-append /etc/hosts '127.0.0.1'$'\t''localhost.localdomain'$'\t''localhost'$'\t'"$hostname"
+safe-append /etc/hosts '::1'$'\t''localhost.localdomain'$'\t''localhost'$'\t'"$hostname"
 
 
 # sed -i 's/#\(Storage=\)auto/\1volatile/' /etc/systemd/journald.conf
