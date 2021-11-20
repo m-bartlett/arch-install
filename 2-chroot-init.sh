@@ -47,7 +47,7 @@ pacman_packages=(
   wget
   curl
   nm-connection-editor
-  nss-mdns
+  # nss-mdns
 
   bluez
   bluez-utils
