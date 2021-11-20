@@ -47,6 +47,7 @@ pacman_packages=(
   wget
   curl
   nm-connection-editor
+  nss-mdns
 
   bluez
   bluez-utils
@@ -178,6 +179,8 @@ systemctl enable bluetooth
 systemctl mask systemd-rfkill.service
 systemctl mask systemd-rfkill.socket
 systemctl enable lightdm
+systemctl enable avahi-daemon
+systemctl start avahi-daemon
 # sudo systemctl enable fstrim.timer
 
 
