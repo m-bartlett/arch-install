@@ -19,6 +19,7 @@ aur_packages=(
   vim-clipboard
   web-media-controller-mpris-git
   libxft-bgra
+	gtkrc-reload
 )
 
 yay -Sya --noconfirm ${aur_packages[@]}
